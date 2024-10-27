@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MyEnglish</string>
+    <string name="spinnerQuestionLang">Question language</string>
+    <string-array name="questionLanguages">
+        <item>EN</item>
+        <item>PL</item>
+    </string-array>
+</resources>

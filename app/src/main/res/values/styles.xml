@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="LangList_SpinnerPopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+        <!-- border width -->
+        <item name="android:padding">1dp</item>
+        <!-- border color -->
+        <item name="android:background">#f00</item>
+    </style>
+</resources>
