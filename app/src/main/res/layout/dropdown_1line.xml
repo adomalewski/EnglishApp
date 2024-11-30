@@ -1,0 +1,11 @@
+<TextView
+    android:id="@+id/dropdownItem"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:textSize="20sp"
+    android:padding="5sp"
+    android:textColor="@color/white"
+    android:background="@color/black"
+    android:singleLine="true">
+</TextView>

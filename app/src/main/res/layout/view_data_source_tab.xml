@@ -1,0 +1,46 @@
+ <LinearLayout
+    android:id="@+id/tabDataSourceView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="20dp"
+    android:paddingLeft="10dp"
+    app:layout_constraintTop_toTopOf="parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Spreadsheet Id:"
+        android:textSize="16sp"
+        android:paddingTop="20dp"/>
+
+    <EditText
+        android:id="@+id/editSpreadsheetId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="19"
+        android:inputType="text"
+        android:text="editSpreadsheetId"
+        android:textSize="16sp"
+        android:paddingTop="8dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="API Key:"
+        android:textSize="16sp"
+        android:paddingTop="30dp" />
+
+    <EditText
+        android:id="@+id/editApiKey"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="19"
+        android:inputType="text"
+        android:text="editApiKey"
+        android:textSize="16sp"
+        android:paddingTop="8dp" />
+
+</LinearLayout>

@@ -3,31 +3,32 @@ package com.adsolutions.englishapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.adsolutions.englishapp.enums.Language;
 
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    Button buttonCheck;
+    Intent settingsActivityIntent;
+
     Button buttonNext;
     Button buttonAnswer;
+    Button settingsButton;
     TextView textViewResult;
     TextView textViewQuestion;
-    EditText editTextAnswer;
     Spinner dropdownQuestionLang;
 
     Boolean answerResult = null;
@@ -39,26 +40,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        buttonCheck = findViewById(R.id.buttonCheck);
-        buttonNext = findViewById(R.id.buttonNext);
-        buttonAnswer = findViewById(R.id.buttonAnswer);
-        textViewResult = findViewById(R.id.textViewResult);
-        textViewQuestion = findViewById(R.id.textViewQuestion);
-        editTextAnswer = findViewById(R.id.editTextAnswer);
-        dropdownQuestionLang = findViewById(R.id.dropdownQuestionLang);
-
+        initiateElements();
         init();
         eventsHandlers();
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        if (getCurrentFocus() != null) {
-            if (!isElementClicked(ev, editTextAnswer)) {
-                hideKeyboard();
-            }
-        }
-        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -70,6 +54,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onRestart() {
         AlarmReceiver.cancelAlarm();
+
+        if(AppStateManager.isAfterResetStorage()) {
+            clearPlainUI();
+            getDataFromAPIandSetNewQuestion();
+            ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                    this, R.array.questionLanguages, android.R.layout.simple_spinner_dropdown_item);
+            dropdownQuestionLang.setAdapter(adapter);
+            setQuestionLanguageDropdown(QuestionManager.getQuestionLanguage().name());
+
+            AppStateManager.unsetAfterResetStorage();
+        }
+
+        if(AppStateManager.isAfterChangedDataSourceIds()) {
+            clearPlainUI();
+            getDataFromAPIandSetNewQuestion();
+
+            AppStateManager.unsetAfterChangedDataSourceIds();
+        }
+
         super.onRestart();
     }
 
@@ -80,8 +83,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onPause() {
         if (!this.isFinishing()) {
-            AlarmReceiver.setAlarm(this);
             QuestionManager.storeQuestionsData();
+
+            if(AppStateManager.isNotPreOpenAnotherActivity()) {
+                AlarmReceiver.setAlarm(this);
+                AppStateManager.unsetPreOpenAnotherActivity();
+            }
         }
         super.onPause();
     }
@@ -93,10 +100,82 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onDestroy();
     }
 
+    private void initiateElements() {
+        buttonNext = findViewById(R.id.buttonNext);
+        buttonAnswer = findViewById(R.id.buttonAnswer);
+        settingsButton = findViewById(R.id.settingsButton);
+        textViewResult = findViewById(R.id.textViewResult);
+        textViewQuestion = findViewById(R.id.textViewQuestion);
+        dropdownQuestionLang = findViewById(R.id.dropdownQuestionLang);
+
+        settingsActivityIntent = new Intent(this, SettingsPageActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+    }
+
+    private void init() {
+        AlarmReceiver.cancelAlarm();
+        appStorageManager = AppStorageManager.getInstance();
+        appStorageManager.initializeStorage(this);
+        ExternalDataManager.readAllDataFromStorage();
+        if (!QuestionManager.areDictionariesFilled()) {
+            QuestionManager.storeSettingsIfMissing();
+            clearPlainUI();
+            if (!QuestionManager.isWordInStorage()) {
+                getDataFromAPIandSetNewQuestion();
+            } else {
+                getDataFromAPIandSetQuestionFromStorage();
+            }
+        } else {
+            QuestionManager.readQuestionsDataFromStorage();
+            textViewQuestion.setText(QuestionManager.getQuestionText());
+        }
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this, R.array.questionLanguages, android.R.layout.simple_spinner_dropdown_item);
+        dropdownQuestionLang.setAdapter(adapter);
+        setQuestionLanguageDropdown(QuestionManager.getQuestionLanguage().name());
+    }
+
+    private void eventsHandlers() {
+        buttonNext.setOnClickListener(view -> {
+            clearPlainUI();
+            setNewQuestion();
+        });
+
+        buttonAnswer.setOnClickListener(view -> {
+            textViewResult.setText("");
+            textViewResult.setText(QuestionManager.getFormattedAnswer());
+            textViewResult.setTextColor(Color.BLUE);
+        });
+
+        settingsButton.setOnClickListener(view -> {
+            AppStateManager.setPreOpenAnotherActivity();
+            startActivity(settingsActivityIntent);
+        });
+
+        dropdownQuestionLang.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                boolean realChange = !Objects.equals(QuestionManager.getQuestionLanguage().name(), dropdownQuestionLang.getItemAtPosition(position).toString());
+                if (realChange) {
+                    QuestionManager.setQuestionLanguage(Language.valueOf(dropdownQuestionLang.getItemAtPosition(position).toString()));
+                    QuestionManager.clearHistory();
+                    clearPlainUI();
+                    setNewQuestion();
+                    AppStorageManager.getInstance().storeQuestionLanguage(QuestionManager.getQuestionLanguage().name());
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parentView) {
+            }
+        });
+    }
+
     private void hideKeyboard() {
         try {
             InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            imm.hideSoftInputFromWindow(Objects.requireNonNull(getCurrentFocus()).getWindowToken(), 0);
         } catch (Exception ignored) {
         }
     }
@@ -109,16 +188,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setNewQuestion() {
-        clearPlainUI();
         QuestionManager.retrieveNextQuestion();
         textViewQuestion.setText(QuestionManager.getQuestionText());
+        QuestionMonitoring.addCurrentTextToAllPreviousQuestionsList();
     }
 
     private void clearPlainUI() {
         answerResult = null;
-        editTextAnswer.setText("");
         textViewResult.setText("");
-        buttonCheck.setEnabled(false);
         textViewQuestion.setText("");
     }
 
@@ -137,98 +214,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return 0;
     }
 
-    private void init() {
-        AlarmReceiver.cancelAlarm();
-        appStorageManager = AppStorageManager.getInstance();
-        appStorageManager.initializeStorage(this);
-        if (!QuestionManager.isDictionaryFilled()) {
-            QuestionManager.storeSettingsIfUnexist();
-            if (!QuestionManager.isWordInStorage()) {
-                getDataFromAPIandSetNewQuestion();
-            } else {
-                getDataFromAPIandSetQuestionFromStorage();
-            }
-        } else {
-            QuestionManager.readQuestionsDataFromStorage();
-            textViewQuestion.setText(QuestionManager.getQuestionText());
-        }
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-                this, R.array.questionLanguages, android.R.layout.simple_spinner_dropdown_item);
-        dropdownQuestionLang.setAdapter(adapter);
-        setQuestionLanguageDropdown(QuestionManager.getQuestionLanguage());
-    }
-
-    private void eventsHandlers() {
-        buttonCheck.setOnClickListener(view -> {
-            answerResult = QuestionManager.checkResult(editTextAnswer.getText().toString());
-
-            if (answerResult) {
-                textViewResult.setText("Correct!");
-                textViewResult.setTextColor(Color.GREEN);
-
-            } else {
-                textViewResult.setText("Wrong!");
-                textViewResult.setTextColor(Color.RED);
-            }
-
-            hideKeyboard();
-        });
-
-        buttonNext.setOnClickListener(view -> {
-            setNewQuestion();
-        });
-
-        buttonAnswer.setOnClickListener(view -> {
-            textViewResult.setText("");
-            textViewResult.setText(QuestionManager.getFormattedAnswer());
-            textViewResult.setTextColor(Color.BLUE);
-        });
-
-        editTextAnswer.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.length() != 0) {
-                    buttonCheck.setEnabled(true);
-                } else {
-                    buttonCheck.setEnabled(false);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        dropdownQuestionLang.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                boolean realChange = !Objects.equals(QuestionManager.getQuestionLanguage(), dropdownQuestionLang.getItemAtPosition(position).toString());
-                if (realChange) {
-                    QuestionManager.setQuestionLanguage(dropdownQuestionLang.getItemAtPosition(position).toString());
-                    setNewQuestion();
-                    AppStorageManager.getInstance().storeQuestionLanguage(QuestionManager.getQuestionLanguage());
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-            }
-        });
-    }
-
     private void getDataFromAPIandSetQuestionFromStorage() {
         textViewQuestion.setText(QuestionManager.getQuestionText());
-        ExternalDataManager.getDataFromAPI(this, () -> null);
+        ExternalDataManager.getDataFromAPI(this, () -> {
+            AnswerToQuestionTransformer.buildDictionary(Language.EN, Language.PL);
+            return null;
+        });
     }
 
     private void getDataFromAPIandSetNewQuestion() {
         ExternalDataManager.getDataFromAPI(this, () -> {
             setNewQuestion();
+            AnswerToQuestionTransformer.buildDictionary(Language.EN, Language.PL);
             return null;
         });
     }

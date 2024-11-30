@@ -1,0 +1,23 @@
+<LinearLayout
+    android:id="@+id/tabStorageView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remove all storage (except data source)"
+        android:textSize="16sp" />
+    <Button
+        android:id="@+id/buttonResetStorage"
+        android:layout_width="160dp"
+        android:layout_height="50dp"
+        android:text="Reset storage"
+        android:backgroundTint="@color/dark_grey"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+</LinearLayout>

@@ -6,4 +6,5 @@
     </style>
 
     <style name="Theme.EnglishApp" parent="Base.Theme.EnglishApp" />
+
 </resources>

@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 public class NotificationScheduleManager {
 
-    private static final Map<String, List<String>> scheduleMap = new HashMap<>();
+    private static final Map<String, List<String>> scheduleMap = new LinkedHashMap<>();
 
     public static Map<String, List<String>> getScheduleMap() {
         return scheduleMap;
@@ -22,7 +22,10 @@ public class NotificationScheduleManager {
 
     private static int alarmTimeoutHr = 2;
 
-    public static long getAlarmTriggerTime() {
+    public static Long getAlarmTriggerTime() {
+        if(scheduleMap.isEmpty())
+            return null;
+
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
 
@@ -67,6 +70,11 @@ public class NotificationScheduleManager {
                 }
             }
         }
+
+        if(finalTime == null) {
+            return null;
+        }
+
         return finalTime.getTime();
     }
 

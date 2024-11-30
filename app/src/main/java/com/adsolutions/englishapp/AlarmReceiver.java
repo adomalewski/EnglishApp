@@ -15,7 +15,6 @@ import android.graphics.Color;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import java.util.Date;
 import java.util.List;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -54,8 +53,12 @@ public class AlarmReceiver extends BroadcastReceiver {
                 context, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE
         );
+
 //        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pendingIntent);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, getAlarmTriggerTime(), pendingIntent);
+        Long alarmTriggerTime = getAlarmTriggerTime();
+        if(alarmTriggerTime != null) {
+            alarmManager.set(AlarmManager.RTC_WAKEUP, alarmTriggerTime, pendingIntent);
+        }
     }
 
     public static void cancelAlarm() {

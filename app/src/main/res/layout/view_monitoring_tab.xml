@@ -1,0 +1,222 @@
+<LinearLayout
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/tabMonitoringView"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingTop="20dp"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Current question position: "
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/textViewQuestionPosition"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-1"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="Current round questions list:"
+                android:textSize="16sp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:maxHeight="130dp"
+                android:minHeight="20dp">
+
+                <com.adsolutions.englishapp.CustomNestedScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:scrollbars="vertical"
+                    android:paddingRight="4dp">
+
+                    <TextView
+                        android:id="@+id/textViewCurrentRoundWordsList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_boarder"
+                        android:textIsSelectable="true"
+                        android:paddingVertical="3dp"
+                        android:paddingHorizontal="8dp"
+                        android:text="1,2,3"
+                        android:textSize="16sp" />
+
+                </com.adsolutions.englishapp.CustomNestedScrollView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:text="Previous round questions list:"
+                android:textSize="16sp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:maxHeight="130dp"
+                android:minHeight="20dp">
+
+                <com.adsolutions.englishapp.CustomNestedScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:scrollbars="vertical"
+                    android:paddingRight="4dp">
+
+                    <TextView
+                        android:id="@+id/textViewPreviousRoundWordsList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/textview_boarder"
+                        android:textIsSelectable="true"
+                        android:paddingVertical="3dp"
+                        android:paddingHorizontal="8dp"
+                        android:text="3,2,1"
+                        android:textSize="16sp" />
+
+                </com.adsolutions.englishapp.CustomNestedScrollView>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingTop="15dp"
+                android:text="Number column counts amount of other questions occurrences that appeared since a given question has been presented."
+                android:textSize="11sp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxHeight="150dp"
+                android:minHeight="30dp">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:orientation="horizontal"
+                    android:paddingTop="10dp"
+                    android:paddingRight="4dp">
+
+                    <TableRow
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="21dp"
+                            android:layout_column="0"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_lines"
+                            android:paddingStart="0dp"
+                            android:paddingEnd="3dp"
+                            android:text="Position"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="130dp"
+                            android:layout_height="21dp"
+                            android:layout_column="1"
+                            android:layout_weight="1"
+                            android:background="@drawable/table_lines"
+                            android:paddingHorizontal="3dp"
+                            android:text="Question"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="21dp"
+                            android:layout_column="2"
+                            android:layout_weight="1"
+                            android:paddingHorizontal="3dp"
+                            android:text="Number"
+                            android:textStyle="bold" />
+
+                    </TableRow>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="#55000000"
+                        android:paddingTop="2dp" />
+
+                    <com.adsolutions.englishapp.CustomNestedScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="vertical">
+
+                        <TableLayout
+                            android:id="@+id/settingsQuestionNumberTable"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                    </com.adsolutions.englishapp.CustomNestedScrollView>
+
+                </TableLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                android:orientation="vertical"
+                android:paddingTop="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Find question:"
+                    android:textSize="16sp" />
+
+                <com.adsolutions.englishapp.CustomAutoCompleteTextView
+                    android:id="@+id/lastQuestionsDropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:paddingTop="8dp"
+                    android:hint="" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</LinearLayout>
